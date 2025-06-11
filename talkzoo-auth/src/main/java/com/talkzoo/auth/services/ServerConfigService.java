@@ -4,6 +4,7 @@ import com.talkzoo.auth.entity.ServerConfig;
 import com.talkzoo.auth.entity.dao.ServerConfigDao;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 
@@ -45,6 +46,13 @@ public class ServerConfigService {
                 .apiKey("bangur@9470")
                 .build();
         return serverConfigDao.save(serverConfig);
+    }
+
+    public static ServerConfig getServerConfig() {
+        if(ObjectUtils.isEmpty(serverConfig)) {
+            throw new RuntimeException("ServerConfig is empty");
+        }
+        return serverConfig;
     }
 
 }
