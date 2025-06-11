@@ -12,4 +12,4 @@ COPY --from=build /app/target/talkzoo-auth-0.0.1-SNAPSHOT.jar app.jar
 COPY --from=build /app/target/notification-queue-0.0.1-SNAPSHOT.jar app.jar
 
 # Run whichever jar you want as default (example: eureka)
-CMD ["java", "-jar", "talkzoo-eureka.jar"]
+CMD ["java", "-jar", "app.jar"]
