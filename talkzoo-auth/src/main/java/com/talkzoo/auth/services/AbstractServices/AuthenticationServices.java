@@ -7,6 +7,6 @@ import com.talkzoo.auth.payloads.UserCredentials;
 public interface AuthenticationServices {
 
     String authenticateUser(UserCredentials userCredentials);
-    GenericResponse registerUser(RegisterUser registerUser);
+    String registerUser(RegisterUser registerUser);
 
 }
