@@ -12,7 +12,8 @@ public class GenericResponse {
         this.data = data;
     }
 
-    public void setError(String message) {
+    public void setError(Object data, String message) {
+        this.data = data;
         this.message = message;
         this.timestamp = new Date();
     }

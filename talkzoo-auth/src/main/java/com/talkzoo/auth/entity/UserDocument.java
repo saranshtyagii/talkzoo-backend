@@ -34,8 +34,8 @@ public class UserDocument {
     private Date updateDate;
 
     private boolean showDetails;
-    private boolean isUserVerified;
-    private boolean isUserDeleted;
+    private boolean userVerified;
+    private boolean userDeleted;
 
     private Map<String, DeviceDetails>  deviceDetails;
 

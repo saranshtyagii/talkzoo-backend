@@ -1,9 +1,9 @@
-package com.talkzoo.auth.config;
+package com.web.kafka.config;
 
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class AuthConfig {
+public class KafkaServerConfig {
 
 
 
