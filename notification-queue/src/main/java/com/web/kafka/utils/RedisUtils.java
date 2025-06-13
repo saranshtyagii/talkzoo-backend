@@ -1,6 +1,6 @@
-package com.talkzoo.auth.redis;
+package com.web.kafka.utils;
 
-import com.talkzoo.auth.services.RedisServices;
+import com.web.kafka.utils.services.RedisServices;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -48,3 +48,4 @@ public class RedisUtils {
     }
 
 }
+
