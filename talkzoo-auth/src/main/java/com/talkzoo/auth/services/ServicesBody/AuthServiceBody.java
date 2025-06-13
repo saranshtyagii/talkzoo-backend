@@ -14,7 +14,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 @Service
-@ComponentScan("com.web.kafka")
+@ComponentScan("com.web.kafka.*")
 public class AuthServiceBody implements AuthenticationServices {
 
     private final UserMasterDao userMasterDao;
