@@ -17,5 +17,6 @@ public class ServerConfig {
     private String jwtSecretKey;
     private String jwtIssuer;
     private String apiKey;
+    private boolean prod;
 
 }

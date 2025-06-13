@@ -5,7 +5,10 @@ import com.talkzoo.auth.entity.dao.UserMasterDao;
 import com.talkzoo.auth.payloads.RegisterUser;
 import com.talkzoo.auth.payloads.UserCredentials;
 import com.talkzoo.auth.services.AbstractServices.AuthenticationServices;
+import com.talkzoo.auth.services.ServerConfigService;
 import com.web.kafka.elaslticsearch.ElasticSearchUtils;
+import com.web.kafka.helper.LogsEvents;
+import com.web.kafka.helper.MapperUtils;
 import com.web.kafka.utils.RedisUtils;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -61,8 +64,19 @@ public class AuthServiceBody implements AuthenticationServices {
             userDocument.setUserDeleted(false);
             UserDocument savedUser = userMasterDao.save(userDocument);
             if(ObjectUtils.isEmpty(savedUser)) {
-                throw new Exception("Failed to create user!");
+                elasticSearchUtils.pushException("FAILED TO CREATE USER", "OBJECT IS NULL");
+                return "INVALID_USER";
             }
+
+            elasticSearchUtils.push(LogsEvents.builder()
+                        .message("ACCOUNT_CREATED")
+                        .userId(savedUser.getId())
+                        .username(savedUser.getUsername())
+                        .environment(ServerConfigService.getServerConfig().isProd() ? "PROD" : "STAGE")
+                        .userDetailsString(MapperUtils.convertObjectToString(savedUser))
+                        .logType("NON_FATAL")
+                    .build());
+
             return savedUser.getUsername();
         } catch (Exception e) {
             elasticSearchUtils.pushException("REGISTER_USER_EXCEPTION", e.getMessage());

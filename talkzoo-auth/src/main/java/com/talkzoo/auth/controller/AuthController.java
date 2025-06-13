@@ -7,6 +7,7 @@ import com.talkzoo.auth.security.JwtTokenUtils;
 import com.talkzoo.auth.security.JwtUserDetailsServices;
 import com.talkzoo.auth.services.AbstractServices.AuthenticationServices;
 import com.web.kafka.elaslticsearch.ElasticSearchUtils;
+import com.web.kafka.helper.LogsEvents;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -60,7 +61,10 @@ public class AuthController {
             UserDetails userDetails = jwtUserDetailsServices.loadUserByUsername(userCredentials.getUsername());
             String token = jwtTokenUtils.generateToken(userDetails);
             genericResponse.setResponse(token);
-
+            elasticSearchUtils.push(LogsEvents.builder()
+                            .username(userDetails.getUsername())
+                            .message("LOGIN_SUCCESS")
+                    .build());
         } catch (Exception e) {
             genericResponse.setError(userCredentials, e.getMessage());
             elasticSearchUtils.pushException("LOGIN_USER", e.getMessage());

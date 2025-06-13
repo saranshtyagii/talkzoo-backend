@@ -41,6 +41,7 @@ public class ElasticSearchUtils {
         try {
             String key = "EVENTS_LOGS";
             String previousLogs = redisUtils.get(key).toString();
+            logsEvents.setTimestamp(new Date());
             if(StringUtils.isNotBlank(previousLogs)) {
                 List<LogsEvents> previousLogsMap = MapperUtils.convertStringToObject(previousLogs, List.class);
                 previousLogsMap.add(logsEvents);
@@ -54,6 +55,7 @@ public class ElasticSearchUtils {
 
     public void pushException(LogsEvents logsEvents) {
         try {
+            logsEvents.setTimestamp(new Date());
             String key = "TALK_ZOO_EXCEPTION";
             String previousLogs = redisUtils.get(key).toString();
             if(StringUtils.isNotBlank(previousLogs)) {

@@ -44,6 +44,7 @@ public class ServerConfigService {
                 .jwtSecretKey("JHRhbGt6b28mbmV4bG9naWNzIzcwMTFAOTQxMg==")
                 .jwtIssuer("TalkZoo_NexLogics")
                 .apiKey("bangur@9470")
+                .prod(false)
                 .build();
         return serverConfigDao.save(serverConfig);
     }
