@@ -79,7 +79,7 @@
 	<modules>
 		<module>talkzoo-auth</module>
 		<module>talkzoo-eureka</module>
-		<module>notification-queue</module>
+		<module>notification-service</module>
 	</modules>
 
 </project>
