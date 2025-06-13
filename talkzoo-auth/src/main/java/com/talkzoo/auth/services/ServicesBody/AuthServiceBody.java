@@ -5,6 +5,7 @@ import com.talkzoo.auth.entity.dao.UserMasterDao;
 import com.talkzoo.auth.payloads.RegisterUser;
 import com.talkzoo.auth.payloads.UserCredentials;
 import com.talkzoo.auth.services.AbstractServices.AuthenticationServices;
+import com.web.kafka.elaslticsearch.ElasticSearchUtils;
 import com.web.kafka.utils.RedisUtils;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,11 +20,13 @@ public class AuthServiceBody implements AuthenticationServices {
     private final UserMasterDao userMasterDao;
     private final RedisUtils redisUtils;
     private final PasswordEncoder passwordEncoder;
+    private final ElasticSearchUtils elasticSearchUtils;
 
-    public AuthServiceBody(UserMasterDao userMasterDao, RedisUtils redisUtils, PasswordEncoder passwordEncoder) {
+    public AuthServiceBody(UserMasterDao userMasterDao, RedisUtils redisUtils, PasswordEncoder passwordEncoder, ElasticSearchUtils elasticSearchUtils) {
         this.userMasterDao = userMasterDao;
         this.redisUtils = redisUtils;
         this.passwordEncoder = passwordEncoder;
+        this.elasticSearchUtils = elasticSearchUtils;
     }
 
 
@@ -62,7 +65,7 @@ public class AuthServiceBody implements AuthenticationServices {
             }
             return savedUser.getUsername();
         } catch (Exception e) {
-
+            elasticSearchUtils.pushException("REGISTER_USER_EXCEPTION", e.getMessage());
         }
         return null;
     }
