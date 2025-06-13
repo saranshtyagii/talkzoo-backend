@@ -2,17 +2,18 @@ package com.talkzoo.auth.services.ServicesBody;
 
 import com.talkzoo.auth.entity.UserDocument;
 import com.talkzoo.auth.entity.dao.UserMasterDao;
-import com.talkzoo.auth.mapper.MapperUtils;
 import com.talkzoo.auth.payloads.RegisterUser;
 import com.talkzoo.auth.payloads.UserCredentials;
-import com.talkzoo.auth.redis.RedisUtils;
 import com.talkzoo.auth.services.AbstractServices.AuthenticationServices;
+import com.web.kafka.utils.RedisUtils;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 @Service
+@ComponentScan("com.web.kafka")
 public class AuthServiceBody implements AuthenticationServices {
 
     private final UserMasterDao userMasterDao;
