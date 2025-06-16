@@ -40,7 +40,7 @@ public class RedisUtils {
         } catch (Exception e) {}
     }
 
-    public Object get(String key) {
+    public String get(String key) {
         try {
             return redisServices.get(key);
         } catch (Exception e) {}

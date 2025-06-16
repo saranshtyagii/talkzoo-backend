@@ -18,4 +18,15 @@ public class GenericResponse {
         this.timestamp = new Date();
     }
 
+    public void setError(String message) {
+        this.message = message;
+        this.timestamp = new Date();
+    }
+
+    public void setResponse(Object data, String message) {
+        this.data = data;
+        this.message = message;
+        this.timestamp = new Date();
+    }
+
 }
