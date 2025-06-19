@@ -12,28 +12,40 @@ import java.util.*;
 public class KafkaUtils {
 
     private final ElasticSearchUtils elasticSearchUtils;
-    private Map<String, Object> QueueMetaData;
+    private Map<String, Object> matchQueue;
+    private List<QueueMetaData> queueMetaDataList;
 
     public KafkaUtils(ElasticSearchUtils elasticSearchUtils) {
         this.elasticSearchUtils = elasticSearchUtils;
     }
 
-    private Map<String, Object> getQueue() {
-        if (CollectionUtils.isEmpty(QueueMetaData)) {
-            QueueMetaData = new HashMap<>();
+    private Map<String, Object> getMatchQueue() {
+        if (CollectionUtils.isEmpty(matchQueue)) {
+            matchQueue = new HashMap<>();
         }
-        return QueueMetaData;
+        return matchQueue;
+    }
+
+    private List<QueueMetaData> getQueueMetaDataList() {
+        if (queueMetaDataList == null) {
+            queueMetaDataList = new ArrayList<>();
+        }
+        return queueMetaDataList;
     }
 
     public void pushToQueue(QueueMetaData queueMetaData) {
-
+        try {
+            getQueueMetaDataList().add(queueMetaData);
+        } catch (Exception e) {
+            elasticSearchUtils.pushException("PUSH_QUEUE_EXCEPTION", e.getMessage());
+        }
     }
 
     public void pushToQueue(Map<String, Object> queueData) {
         try {
-            getQueue().putAll(queueData);
+            getMatchQueue().putAll(queueData);
         } catch (Exception e) {
-            elasticSearchUtils.pushException("PUSH_QUEUE_EXCEPTION", e.getMessage());
+            elasticSearchUtils.pushException("PUSH__MATCH_QUEUE_EXCEPTION", e.getMessage());
         }
     }
 
@@ -46,7 +58,7 @@ public class KafkaUtils {
 
         Map<String, Object> matchFoundData = new HashMap<>();
 
-        for (Map.Entry<String, Object> entry : getQueue().entrySet()) {
+        for (Map.Entry<String, Object> entry : getMatchQueue().entrySet()) {
             Object value = entry.getValue();
             ActiveMembersDetails activeMember = (ActiveMembersDetails) value;
 

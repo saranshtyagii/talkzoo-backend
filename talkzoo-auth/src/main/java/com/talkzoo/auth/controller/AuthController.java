@@ -9,8 +9,10 @@ import com.talkzoo.auth.security.JwtTokenUtils;
 import com.talkzoo.auth.security.JwtUserDetailsServices;
 import com.talkzoo.auth.services.AbstractServices.AuthenticationServices;
 import com.web.kafka.elaslticsearch.ElasticSearchUtils;
+import com.web.kafka.helper.ActiveMembersDetails;
 import com.web.kafka.helper.LogsEvents;
 import com.web.kafka.helper.MapperUtils;
+import com.web.kafka.queueservice.KafkaUtils;
 import com.web.kafka.utils.RedisConstants;
 import com.web.kafka.utils.RedisUtils;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -31,14 +35,16 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final ElasticSearchUtils elasticSearchUtils;
     private final RedisUtils redisUtils;
+    private final KafkaUtils kafkaUtils;
 
-    public AuthController(AuthenticationServices authenticationServices, JwtTokenUtils jwtTokenUtils, JwtUserDetailsServices jwtUserDetailsServices, AuthenticationManager authenticationManager, ElasticSearchUtils elasticSearchUtils, RedisUtils redisUtils) {
+    public AuthController(AuthenticationServices authenticationServices, JwtTokenUtils jwtTokenUtils, JwtUserDetailsServices jwtUserDetailsServices, AuthenticationManager authenticationManager, ElasticSearchUtils elasticSearchUtils, RedisUtils redisUtils, KafkaUtils kafkaUtils) {
         this.authenticationServices = authenticationServices;
         this.jwtTokenUtils = jwtTokenUtils;
         this.jwtUserDetailsServices = jwtUserDetailsServices;
         this.authenticationManager = authenticationManager;
         this.elasticSearchUtils = elasticSearchUtils;
         this.redisUtils = redisUtils;
+        this.kafkaUtils = kafkaUtils;
     }
 
     @PostMapping("/register")
@@ -88,6 +94,15 @@ public class AuthController {
             ActiveUserMetaData activeUserMetaData = new ActiveUserMetaData(uuid, metaData, true);
             String activeUSerString = MapperUtils.convertObjectToString(activeUserMetaData);
             redisUtils.set(RedisConstants.ACTIVE_USER_INFO, activeUSerString, RedisUtils.ONE_HOUR);
+            Map<String, Object> guestMap = new HashMap<>();
+            guestMap.put(uuid, ActiveMembersDetails.builder()
+                            .displayName(metaData.getDisplayName())
+                            .gender(metaData.getGender())
+                            .interests(metaData.getInterestToTalk())
+                            .active(true)
+                            .engaged(false)
+                    .build());
+            kafkaUtils.pushToQueue(guestMap);
             genericResponse.setResponse(uuid);
         } catch (Exception e) {
             elasticSearchUtils.pushException("LOGIN_GUEST", e.getMessage());
