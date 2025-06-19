@@ -1,7 +1,11 @@
 package com.web.kafka.helper;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MapperUtils {
 
@@ -41,4 +45,30 @@ public class MapperUtils {
         }
         return null;
     }
+
+    public static <T> List<T> convertStringToList(String json, Class<T> clazz) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, clazz);
+            return objectMapper.readValue(json, type);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+
+    public static List<LogsEvents> convertStringToLogsEventsList(String json) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, LogsEvents.class);
+            return objectMapper.readValue(json, type);
+        } catch (Exception e) {
+            e.printStackTrace(); // or use proper logging
+            return new ArrayList<>();
+        }
+    }
+
+
+
 }

@@ -42,12 +42,12 @@ public class AuthServiceBody implements AuthenticationServices {
     public String registerUser(RegisterUser registerUser) {
         try {
             if(isUsernameExist(registerUser.getUsername())) {
-                throw new Exception("Username is already is in use!");
+                return "Username is already in use";
             }
 
             if(!StringUtils.isEmpty(registerUser.getEmail())
                 && isEmailExists(registerUser.getEmail())) {
-                throw new Exception("Email is already exists!");
+                return "Email is already in use";
             }
 
             UserDocument userDocument = new UserDocument();
@@ -70,6 +70,7 @@ public class AuthServiceBody implements AuthenticationServices {
 
             elasticSearchUtils.push(LogsEvents.builder()
                         .message("ACCOUNT_CREATED")
+                        .eventId("USER_LOGS")
                         .userId(savedUser.getId())
                         .username(savedUser.getUsername())
                         .environment(ServerConfigService.getServerConfig().isProd() ? "PROD" : "STAGE")
@@ -81,7 +82,7 @@ public class AuthServiceBody implements AuthenticationServices {
         } catch (Exception e) {
             elasticSearchUtils.pushException("REGISTER_USER_EXCEPTION", e.getMessage());
         }
-        return null;
+        return "Invalid request!";
     }
 
 
@@ -91,10 +92,10 @@ public class AuthServiceBody implements AuthenticationServices {
             Object usernameInRedis = redisUtils.get(username);
             if(ObjectUtils.isEmpty(usernameInRedis)) {
                 if(userMasterDao.existsByUsername(username)) {
-                    return false;
+                    return true;
                 }
             }
-            return true;
+            return false;
         } catch (Exception e) {
             return false;
         }
@@ -105,10 +106,10 @@ public class AuthServiceBody implements AuthenticationServices {
             Object emailInRedis = redisUtils.get(email);
             if(ObjectUtils.isEmpty(emailInRedis)) {
                 if(userMasterDao.existsByEmail(email)) {
-                    return false;
+                    return true;
                 }
             }
-            return true;
+            return false;
         } catch (Exception e) {
             return false;
         }

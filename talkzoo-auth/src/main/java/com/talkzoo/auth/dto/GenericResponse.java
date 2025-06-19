@@ -1,7 +1,16 @@
 package com.talkzoo.auth.dto;
 
+import lombok.*;
+
 import java.util.Date;
 
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Data
 public class GenericResponse {
 
     private Object data;
@@ -10,6 +19,7 @@ public class GenericResponse {
 
     public void setResponse(Object data) {
         this.data = data;
+        this.timestamp = new Date();
     }
 
     public void setError(Object data, String message) {

@@ -25,7 +25,7 @@ public class JwtUserDetailsServices implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserDocument savedUser = userMasterDao.findByUsername(username);
         if(ObjectUtils.isEmpty(savedUser)) {
-            throw new UsernameNotFoundException("Username not found");
+            throw new UsernameNotFoundException("Username *"+username+"* not found");
         }
         return new User(
                 savedUser.getUsername(),

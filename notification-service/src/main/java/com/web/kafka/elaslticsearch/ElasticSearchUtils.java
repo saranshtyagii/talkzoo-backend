@@ -2,14 +2,14 @@ package com.web.kafka.elaslticsearch;
 
 import com.web.kafka.helper.LogsEvents;
 import com.web.kafka.helper.MapperUtils;
+import com.web.kafka.utils.RedisConstants;
 import com.web.kafka.utils.RedisUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -39,15 +39,15 @@ public class ElasticSearchUtils {
 
     public void push(LogsEvents logsEvents) {
         try {
-            String key = "EVENTS_LOGS";
-            String previousLogs = redisUtils.get(key).toString();
-            logsEvents.setTimestamp(new Date());
-            if(StringUtils.isNotBlank(previousLogs)) {
-                List<LogsEvents> previousLogsMap = MapperUtils.convertStringToObject(previousLogs, List.class);
-                previousLogsMap.add(logsEvents);
+            List<LogsEvents> eventsLogs = new ArrayList<>();
+            String previousLogs = redisUtils.get(RedisConstants.EVENTS_LOGS);
+
+            if (StringUtils.isNotBlank(previousLogs)) {
+                eventsLogs = MapperUtils.convertStringToList(previousLogs, LogsEvents.class);
             }
-            String logsMessageString = MapperUtils.convertObjectToString(logsEvents);
-            redisUtils.set(key, logsMessageString, RedisUtils.ONE_WEEK);
+            eventsLogs.add(logsEvents);
+            String logsMessageString = MapperUtils.convertObjectToString(eventsLogs);
+            redisUtils.set(RedisConstants.EVENTS_LOGS, logsMessageString);
         } catch (Exception e) {
             log.error("PUSH_EXCEPTION", e);
         }
@@ -71,10 +71,20 @@ public class ElasticSearchUtils {
 
     public void pushException(String type, String message) {
         try {
-            Date now = new Date();
-            message.concat(now.toString());
-            String value = type +"_" + message;
-            redisUtils.set(type, value, RedisUtils.ONE_WEEK);
+            Map<String, List<String>> logsMap = new HashMap<>();
+            List<String> previousLogsMessage = new ArrayList<>();
+            // read previous logs
+            String previousLogs = redisUtils.get(RedisConstants.ESLOGSMAP);
+            if(StringUtils.isNotBlank(previousLogs)) {
+                logsMap = MapperUtils.convertStringToObject(previousLogs, Map.class);
+                previousLogsMessage.addAll(logsMap.get(type));
+            }
+            // save latest logs
+            previousLogsMessage.add(message);
+            logsMap.put(type, previousLogsMessage);
+            String jsonString = MapperUtils.convertObjectToString(logsMap);
+            redisUtils.set(RedisConstants.ESLOGSMAP, jsonString, RedisUtils.ONE_WEEK);
+
         } catch (Exception e) {
             log.error("PUSH_EXCEPTION_MESSAGE", e);
         }
@@ -82,7 +92,7 @@ public class ElasticSearchUtils {
 
     public void pushException(Map<String, String> logsMap) {
         try {
-            String key = "TALK_ZOO_EXCEPTION_MAP";
+            String key = RedisConstants.ESLOGSMAP;
             String previousLogs = redisUtils.get(key).toString();
             if(StringUtils.isNotBlank(previousLogs)) {
                 Map<String, String> previousLogsMap = MapperUtils.convertStringToObject(previousLogs, Map.class);

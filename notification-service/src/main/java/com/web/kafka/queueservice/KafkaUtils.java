@@ -3,6 +3,8 @@ package com.web.kafka.queueservice;
 import com.web.kafka.elaslticsearch.ElasticSearchUtils;
 import com.web.kafka.helper.ActiveMembersDetails;
 import com.web.kafka.helper.QueueMetaData;
+import com.web.kafka.utils.RedisUtils;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -78,5 +80,19 @@ public class KafkaUtils {
         return matchFoundData;
     }
 
+
+    @Scheduled(fixedDelay = RedisUtils.FIVE_MINUTES)
+    private void deleteDeActiveUserFromMatchQueue() {
+        if(getQueueMetaDataList().isEmpty()) {
+            return;
+        }
+        for (Map.Entry<String, Object> entry : getMatchQueue().entrySet()) {
+            Object value = entry.getValue();
+            ActiveMembersDetails activeMember = (ActiveMembersDetails) value;
+            if (!activeMember.isEngaged()) {
+                matchQueue.remove(entry.getKey());
+            }
+        }
+    }
 
 }

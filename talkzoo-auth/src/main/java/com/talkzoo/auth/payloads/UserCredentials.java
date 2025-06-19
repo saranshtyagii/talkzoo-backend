@@ -9,6 +9,6 @@ public class UserCredentials {
     private String username;
     private String password;
 
-    private DeviceDetails deviceDetails;
+//    private DeviceDetails deviceDetails;
 
 }

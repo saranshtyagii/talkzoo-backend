@@ -48,7 +48,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<GenericResponse> registerUser(@RequestBody  RegisterUser registerUser) {
+    public ResponseEntity<String> registerUser(@RequestBody RegisterUser registerUser) {
         GenericResponse genericResponse = new GenericResponse();
         try {
             genericResponse.setResponse(authenticationServices.registerUser(registerUser));
@@ -56,11 +56,11 @@ public class AuthController {
             genericResponse.setError(registerUser, "Unable to register your account at that moment! Please try again later.");
             elasticSearchUtils.pushException("REGISTER_USER", e.getMessage());
         }
-        return ResponseEntity.ok(genericResponse);
+        return ResponseEntity.ok(MapperUtils.convertObjectToString(genericResponse));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<GenericResponse> authenticateUser(@RequestBody UserCredentials userCredentials) {
+    public ResponseEntity<String> authenticateUser(@RequestBody UserCredentials userCredentials) {
         GenericResponse genericResponse = new GenericResponse();
         try {
             try {
@@ -82,12 +82,12 @@ public class AuthController {
             genericResponse.setError(userCredentials, "Unable to Login!");
             elasticSearchUtils.pushException("LOGIN_USER", e.getMessage());
         }
-        return ResponseEntity.ok(genericResponse);
+        return ResponseEntity.ok(MapperUtils.convertObjectToString(genericResponse));
     }
 
 
-    @GetMapping("/login-guest")
-    public ResponseEntity<GenericResponse> loginGuest(UserMetaData metaData) {
+    @PostMapping("/login-guest")
+    public ResponseEntity<String> loginGuest(@RequestBody UserMetaData metaData) {
         GenericResponse genericResponse = new GenericResponse();
         try {
             String uuid = UUID.randomUUID().toString();
@@ -108,7 +108,7 @@ public class AuthController {
             elasticSearchUtils.pushException("LOGIN_GUEST", e.getMessage());
             genericResponse.setError(e.getMessage(), e.getMessage());
         }
-        return ResponseEntity.ok(genericResponse);
+        return ResponseEntity.ok(MapperUtils.convertObjectToString(genericResponse));
     }
 
     @GetMapping("/validate-token")

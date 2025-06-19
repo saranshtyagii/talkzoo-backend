@@ -12,6 +12,7 @@ import java.util.Date;
 public class LogsEvents {
 
     private String message;
+    private String eventId;
     private String type;
     private String environment;
     private String username;
