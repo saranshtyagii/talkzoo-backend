@@ -47,7 +47,7 @@ public class AuthController {
         try {
             genericResponse.setResponse(authenticationServices.registerUser(registerUser));
         } catch (Exception e) {
-            genericResponse.setError(registerUser, e.getMessage());
+            genericResponse.setError(registerUser, "Unable to register your account at that moment! Please try again later.");
             elasticSearchUtils.pushException("REGISTER_USER", e.getMessage());
         }
         return ResponseEntity.ok(genericResponse);
@@ -62,7 +62,7 @@ public class AuthController {
                         new UsernamePasswordAuthenticationToken(userCredentials.getUsername(), userCredentials.getPassword())
                 );
             } catch (Exception e) {
-                throw new Exception("Invalid username or password");
+                genericResponse.setError(userCredentials, "Invalid username or password!");
             }
 
             UserDetails userDetails = jwtUserDetailsServices.loadUserByUsername(userCredentials.getUsername());
@@ -73,7 +73,7 @@ public class AuthController {
                             .message("LOGIN_SUCCESS")
                     .build());
         } catch (Exception e) {
-            genericResponse.setError(userCredentials, e.getMessage());
+            genericResponse.setError(userCredentials, "Unable to Login!");
             elasticSearchUtils.pushException("LOGIN_USER", e.getMessage());
         }
         return ResponseEntity.ok(genericResponse);
@@ -91,6 +91,19 @@ public class AuthController {
             genericResponse.setResponse(uuid);
         } catch (Exception e) {
             elasticSearchUtils.pushException("LOGIN_GUEST", e.getMessage());
+            genericResponse.setError(e.getMessage(), e.getMessage());
+        }
+        return ResponseEntity.ok(genericResponse);
+    }
+
+    @GetMapping("/validate-token")
+    public ResponseEntity<GenericResponse> validateToken(@RequestParam String token) {
+        GenericResponse genericResponse = new GenericResponse();
+        try {
+
+        } catch (Exception e) {
+            elasticSearchUtils.pushException("VALIDATE_TOKEN", e.getMessage());
+            genericResponse.setError(e.getMessage(), "Unable to validate you request, please try again!");
         }
         return ResponseEntity.ok(genericResponse);
     }
