@@ -29,7 +29,7 @@ public class KafkaUtils {
 
     }
 
-    public void pushToQueue(Map<String, Objects> queueData) {
+    public void pushToQueue(Map<String, Object> queueData) {
         try {
             getQueue().putAll(queueData);
         } catch (Exception e) {
