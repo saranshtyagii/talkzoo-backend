@@ -64,7 +64,13 @@ public class LogsController {
                 eventsLogs = MapperUtils.convertStringToLogsEventsList(logsInRedis);
             }
 
-            return ResponseEntity.ok(MapperUtils.convertObjectToString(eventsLogs));
+            if(eventsLogs.isEmpty()) {
+                return ResponseEntity.ok("No Logs found for events Id: " + eventId);
+            }
+
+            List<LogsEvents> events = eventsLogs.stream().filter(e -> e.getEventId().equals(eventId)).collect(Collectors.toList());
+
+            return ResponseEntity.ok(MapperUtils.convertObjectToString(events));
 
         } catch (Exception e) {
             e.printStackTrace();
